@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>C3 Joystick Configurator</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3;
+    --muted:#8b949e; --accent:#2f81f7; --ok:#3fb950; --warn:#d29922; --bad:#f85149;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.4 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{display:flex;gap:12px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:5;flex-wrap:wrap}
+  h1{font-size:16px;margin:0;font-weight:600}
+  .grow{flex:1}
+  button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer}
+  button.sec{background:#21262d;border:1px solid var(--border);color:var(--fg);font-weight:500}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .dot{width:9px;height:9px;border-radius:50%;background:#6e7681;display:inline-block;margin-right:6px}
+  .dot.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+  .badge{font-size:11px;padding:2px 7px;border-radius:20px;border:1px solid var(--border);color:var(--muted)}
+  .badge.c3{border-color:var(--ok);color:var(--ok)}
+  .badge.rx{border-color:var(--warn);color:var(--warn)}
+  #banner{display:none;padding:10px 18px;background:#3a1d1d;border-bottom:1px solid var(--bad);color:#ffd7d3;font-size:13px}
+  #banner.show{display:block}
+  main{padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .card h2{margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .pads{display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
+  .padwrap{text-align:center}
+  .pad{position:relative;width:190px;height:190px;border-radius:12px;background:#0b0f14;border:1px solid var(--border);overflow:hidden}
+  .pad .grid{position:absolute;inset:0;
+    background-image:linear-gradient(#ffffff10 1px,transparent 1px),linear-gradient(90deg,#ffffff10 1px,transparent 1px);
+    background-size:19px 19px}
+  .pad .crosshair{position:absolute;left:50%;top:0;width:1px;height:100%;background:#ffffff18}
+  .pad .crosshair.h{top:50%;left:0;width:100%;height:1px}
+  .pad .dotp{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);transform:translate(-50%,-50%);left:50%;top:50%;transition:left .05s linear,top .05s linear}
+  .pad .dead{position:absolute;left:50%;top:50%;width:36px;height:36px;border:1px dashed #ffffff30;border-radius:50%;transform:translate(-50%,-50%)}
+  .padlbl{margin-top:8px;color:var(--muted);font-size:12px}
+  .bar{margin:10px 0}
+  .bar .top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px}
+  .bar .top b{color:var(--fg)}
+  .track{position:relative;height:12px;border-radius:6px;background:#0b0f14;border:1px solid var(--border)}
+  .fill{position:absolute;top:0;bottom:0;width:12px;border-radius:6px;background:linear-gradient(180deg,#58a6ff,#1f6feb);transform:translateX(-6px)}
+  .center{position:absolute;top:-2px;bottom:-2px;width:2px;background:#ffffff55;left:50%}
+  table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);font-size:13px}
+  th:first-child,td:first-child{text-align:left}
+  .sw{display:flex;gap:10px;margin-top:8px}
+  .pill{padding:6px 12px;border-radius:20px;border:1px solid var(--border);color:var(--muted)}
+  .pill.hi{background:#12351f;border-color:var(--ok);color:var(--ok)}
+  .pill.lo{background:#3a1d1d;border-color:var(--bad);color:var(--bad)}
+  .log{height:180px;overflow:auto;background:#0b0f14;border:1px solid var(--border);border-radius:8px;padding:8px;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;color:var(--muted);white-space:pre-wrap}
+  .hint{color:var(--muted);font-size:12px}
+  .maprow{display:flex;align-items:center;justify-content:space-between;margin:8px 0}
+  .maprow label{color:var(--muted);font-size:13px;width:48px}
+  .maprow select{background:#0b0f14;color:var(--fg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font:13px inherit;min-width:110px}
+</style>
+</head>
+<body>
+<header>
+  <span class="dot" id="dot"></span>
+  <h1>C3 Joystick Configurator</h1>
+  <span class="badge" id="status">disconnected</span>
+  <span class="badge" id="source">source: -</span>
+  <span class="badge" id="rate">0 lines/s</span>
+  <span class="badge" id="calbadge">cal: none</span>
+  <span class="grow"></span>
+  <button id="connect">Connect</button>
+  <button id="disconnect" class="sec" disabled>Disconnect</button>
+  <button id="calibrate" class="sec">Calibrate radio</button>
+  <button id="copycal" class="sec">Copy cal</button>
+  <button id="clearcal" class="sec">Clear cal</button>
+  <button id="reset" class="sec">Reset range</button>
+</header>
+<div id="banner"></div>
+
+<main>
+  <div class="card">
+    <h2>Live sticks</h2>
+    <div class="pads">
+      <div class="padwrap">
+        <div class="pad"><div class="grid"></div><div class="crosshair"></div><div class="crosshair h"></div>
+          <div class="dead"></div><div class="dotp" id="dotJ1"></div></div>
+        <div class="padlbl">J1 &nbsp; X <b id="j1x">-</b> · Y <b id="j1y">-</b></div>
+        <div class="padlbl hint" id="j1map">-</div>
+      </div>
+      <div class="padwrap">
+        <div class="pad"><div class="grid"></div><div class="crosshair"></div><div class="crosshair h"></div>
+          <div class="dead"></div><div class="dotp" id="dotJ2"></div></div>
+        <div class="padlbl">J2 &nbsp; X <b id="j2x">-</b> · Y <b id="j2y">-</b></div>
+        <div class="padlbl hint" id="j2map">-</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Channels (1000–2000)</h2>
+    <div id="bars"></div>
+    <div class="sw">
+      <div class="pill" id="pillSW1">SW1</div>
+      <div class="pill" id="pillSW2">SW2</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Channel mapping</h2>
+    <div id="mapsel"></div>
+    <p class="hint">Choose which input drives each PPM channel. Sent live to the C3 and saved on it (and in this browser).</p>
+  </div>
+
+  <div class="card">
+    <h2>Raw readings &amp; calibration</h2>
+    <table>
+      <thead><tr><th>Axis</th><th>raw</th><th>mV</th><th>min</th><th>max</th><th>center</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p class="hint">Move every axis slowly to both extremes — min/max and center update live. Red mV = above the ADC ceiling (clamping).</p>
+  </div>
+
+  <div class="card" style="grid-column:1/-1">
+    <h2>Serial log <span class="hint">(shows exactly what the port sends)</span></h2>
+    <div class="log" id="log">Press Connect, pick the C3 port (usbmodem…). Chrome/Edge only.</div>
+  </div>
+</main>
+
+<script>
+const AXES = ["J1.X","J1.Y","J2.X","J2.Y"];
+const SRC  = ["J1.X","J1.Y","J2.X","J2.Y","SW1","SW2"];
+const S = {
+  min:{}, max:{}, raw:{}, mv:{}, out:{},
+  ch:[1500,1500,1500,1500,1000,2000], chMap:[0,1,2,3,4,5],
+  sw1:1, sw2:1, source:"-", ceil:2890, connected:false, lines:0,
+  cal:null, calActive:false, calEnd:0
+};
+AXES.forEach(a=>{S.min[a]=99999;S.max[a]=-1;S.raw[a]=0;S.mv[a]=0;S.out[a]=1500;});
+try{ const c=JSON.parse(localStorage.getItem("c3joy_cal")||"null"); if(c&&c.axes) S.cal=c; }catch(e){}
+try{ const m=JSON.parse(localStorage.getItem("c3joy_map")||"null"); if(Array.isArray(m)&&m.length===6) S.chMap=m; }catch(e){}
+
+const $ = s=>document.querySelector(s);
+const logEl = $("#log");
+function log(s){ logEl.textContent += s+"\n"; if(logEl.textContent.length>40000){logEl.textContent=logEl.textContent.slice(-20000);} logEl.scrollTop=logEl.scrollHeight; }
+
+const kid = a => a.replace(/\./g,"_");
+const barsEl = $("#bars");
+for(let c=0;c<6;c++){
+  const d=document.createElement("div"); d.className="bar";
+  d.innerHTML = `<div class="top"><span id="clbl_${c}">CH${c+1}</span><b id="cv_${c}">-</b></div>
+    <div class="track"><div class="fill" id="cf_${c}" style="left:50%"></div><div class="center"></div></div>`;
+  barsEl.appendChild(d);
+}
+const mapEl = $("#mapsel");
+for(let c=0;c<6;c++){
+  const div=document.createElement("div"); div.className="maprow";
+  const opts=SRC.map((s,i)=>`<option value="${i}">${s}</option>`).join("");
+  div.innerHTML=`<label>CH${c+1}</label><select id="msel_${c}">${opts}</select>`;
+  mapEl.appendChild(div);
+}
+function syncMapUI(){
+  for(let c=0;c<6;c++){ const el=$("#msel_"+c); if(el) el.value=S.chMap[c]; }
+}
+syncMapUI();
+const rowsEl = $("#rows");
+AXES.forEach(a=>{
+  const k=kid(a);
+  const tr=document.createElement("tr");
+  tr.innerHTML = `<td>${a}</td><td id="r_${k}">-</td><td id="m_${k}">-</td>
+    <td id="mn_${k}">-</td><td id="mx_${k}">-</td><td id="ct_${k}">-</td>`;
+  rowsEl.appendChild(tr);
+});
+
+function setSource(src){
+  if(S.source===src) return;
+  S.source=src;
+  const b=$("#source");
+  b.textContent="source: "+src;
+  b.className="badge "+(src==="C3"?"c3":src==="RX"?"rx":"");
+  if(src==="RX"){
+    showBanner("⚠ Reading the <b>RX</b> (usbserial-A5069RR4). That shows the radio link, not the raw axes. Disconnect and pick the <b>usbmodem…</b> port to debug the joysticks.");
+  } else if(src==="C3"){
+    hideBanner();
+  }
+}
+function showBanner(html){ const b=$("#banner"); b.innerHTML=html; b.classList.add("show"); }
+function hideBanner(){ $("#banner").classList.remove("show"); }
+
+function mapPct(mv,min,max){ const c=(min+max)/2, span=Math.max(1,(max-min)/2); let v=(mv-c)/span; return Math.max(-1,Math.min(1,v)); }
+function mapCal(mv,cal){
+  const c=cal.center, half=(mv>c?cal.max-c:c-cal.min)||1;
+  if(Math.abs(mv-c)<cal.dz) return 0;
+  const s=Math.sign(mv-c)||1, a=Math.abs(mv-c)-cal.dz, ah=Math.max(1,half-cal.dz);
+  return Math.max(-1,Math.min(1,s*(a/ah)));
+}
+
+function render(){
+  $("#pillSW1").className="pill "+(S.sw1?"hi":"lo");
+  $("#pillSW2").className="pill "+(S.sw2?"hi":"lo");
+  AXES.forEach(a=>{
+    const mv=S.mv[a];
+    const cal=(S.cal&&S.cal.axes)?S.cal.axes[a]:null;
+    const min=cal?cal.min:S.min[a], max=cal?cal.max:S.max[a];
+    let out=S.out[a];
+    if(S.source==="C3" && min!==99999){
+      const norm=cal?mapCal(mv,cal):mapPct(mv,min,max);
+      out=Math.round(1500+norm*500);
+      S.out[a]=out;
+      const k=kid(a);
+      $("#r_"+k).textContent=S.raw[a];
+      $("#m_"+k).textContent=mv;
+      $("#mn_"+k).textContent=min===99999?"-":min;
+      $("#mx_"+k).textContent=max;
+      $("#ct_"+k).textContent=cal?(cal.center+" (cal)"):Math.round((min+max)/2);
+      $("#m_"+k).style.color = (mv>=S.ceil-5)?"var(--bad)":"";
+    } else if(S.source==="RX"){
+      $("#r_"+kid(a)).textContent="-";
+      $("#m_"+kid(a)).textContent="-";
+    }
+  });
+  for(let c=0;c<6;c++){
+    const v=S.ch[c];
+    const pct=Math.max(0,Math.min(100,(v-1000)/1000*100));
+    $("#cf_"+c).style.left=pct+"%";
+    $("#cv_"+c).textContent=v;
+    $("#clbl_"+c).textContent="CH"+(c+1)+" ← "+SRC[S.chMap[c]];
+  }
+  const chOfSrc={};                       // source index -> channel (firmware order)
+  for(let c=0;c<6;c++) chOfSrc[S.chMap[c]]=c;
+  const chLbl=i=>{ const c=chOfSrc[i]; return c===undefined?"—":("CH"+(c+1)); };
+  const norm=i=>{ const c=chOfSrc[i]; return c===undefined?0:(S.ch[c]-1500)/500; };
+  const n1x=norm(0), n1y=norm(1), n2x=norm(2), n2y=norm(3);
+  $("#dotJ1").style.left=(50+n1x*45)+"%"; $("#dotJ1").style.top=(50-n1y*45)+"%";
+  $("#dotJ2").style.left=(50+n2x*45)+"%"; $("#dotJ2").style.top=(50-n2y*45)+"%";
+  $("#j1x").textContent=n1x.toFixed(2); $("#j1y").textContent=n1y.toFixed(2);
+  $("#j2x").textContent=n2x.toFixed(2); $("#j2y").textContent=n2y.toFixed(2);
+  $("#j1map").textContent="X → "+chLbl(0)+"   Y → "+chLbl(1);
+  $("#j2map").textContent="X → "+chLbl(2)+"   Y → "+chLbl(3);
+}
+
+function parseC3(line){
+  const re=/(J\d\.\w)=(\d+)\/(\d+)mV/g; let m,got=false;
+  while((m=re.exec(line))){
+    const a=m[1]; S.raw[a]=+m[2]; S.mv[a]=+m[3];
+    if(+m[3]<S.min[a])S.min[a]=+m[3]; if(+m[3]>S.max[a])S.max[a]=+m[3]; got=true;
+  }
+  const s1=line.match(/SW1=(\d)/), s2=line.match(/SW2=(\d)/);
+  if(s1)S.sw1=+s1[1]; if(s2)S.sw2=+s2[1];
+  const cm=line.match(/ch:\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/);
+  if(cm) for(let i=0;i<6;i++) S.ch[i]=+cm[i+1];
+  return got;
+}
+function parseMap(line){
+  const m=line.match(/^map:\s*(.+)$/);
+  if(!m) return false;
+  const names=m[1].trim().split(/\s+/);
+  if(names.length<6) return false;
+  for(let i=0;i<6;i++){ const idx=SRC.indexOf(names[i]); if(idx>=0) S.chMap[i]=idx; }
+  syncMapUI();
+  return true;
+}
+function parseRX(line){
+  const m=line.match(/ch:\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/);
+  if(!m) return false;
+  for(let i=0;i<6;i++) S.ch[i]=+m[i+1];
+  return true;
+}
+
+let port=null, reader=null, keep=false, winStart=0, winCount=0;
+async function send(str){
+  if(!port||!port.writable){ log("not connected — can't send"); return; }
+  try{ const w=port.writable.getWriter(); await w.write(new TextEncoder().encode(str+"\n")); w.releaseLock(); }
+  catch(e){ log("send error: "+e.message); }
+}
+function applyMap(c,val){
+  S.chMap[c]=+val;
+  try{ localStorage.setItem("c3joy_map",JSON.stringify(S.chMap)); }catch(e){}
+  log("set map -> "+S.chMap.join(","));
+  send("map:"+S.chMap.join(","));
+  render();
+}
+async function connect(){
+  if(!("serial" in navigator)){ log("Web Serial unsupported — use Chrome/Edge desktop."); return; }
+  try{
+    port=await navigator.serial.requestPort();
+    await port.open({baudRate:115200});
+    $("#status").textContent="connected"; $("#dot").classList.add("on");
+    $("#connect").disabled=true; $("#disconnect").disabled=false; S.connected=true;
+    log("Connected @115200");
+    keep=true; readLoop();
+    setTimeout(()=>{ send("map:"+S.chMap.join(",")); send("map?"); }, 300);
+  }catch(e){ log("Connect error: "+e.message); }
+}
+async function disconnect(){
+  keep=false;
+  try{ if(reader) await reader.cancel(); }catch(e){}
+  try{ if(port) await port.close(); }catch(e){}
+  port=reader=null;
+  $("#status").textContent="disconnected"; $("#dot").classList.remove("on");
+  $("#connect").disabled=false; $("#disconnect").disabled=true; S.connected=false; log("Disconnected.");
+}
+async function readLoop(){
+  const dec=new TextDecoderStream();
+  port.readable.pipeTo(dec.writable).catch(()=>{});
+  reader=dec.readable.getReader(); let buf="";
+  try{
+    while(keep){
+      const {value,done}=await reader.read(); if(done)break;
+      buf+=value; let i;
+      while((i=buf.indexOf("\n"))>=0){
+        const line=buf.slice(0,i).replace(/\r$/,""); buf=buf.slice(i+1);
+        const t=line.trim(); if(!t) continue;
+        log(t);
+        if(t.startsWith("raw:")){ setSource("C3"); parseC3(t); }
+        else if(t.startsWith("map:")){ setSource("C3"); parseMap(t); }
+        else if(/ch:\s*\d/.test(t)){ if(S.source!=="C3") setSource("RX"); parseRX(t); }
+        S.lines++;
+      }
+      render();
+    }
+  }catch(e){ log("read error: "+e.message); }
+  finally{ try{reader.releaseLock();}catch(e){} }
+}
+
+setInterval(()=>{ $("#rate").textContent=S.lines+" lines/s"; S.lines=0; },1000);
+
+let calTimer=null;
+function calBadge(){
+  const n=S.cal&&S.cal.axes?Object.keys(S.cal.axes).length:0;
+  const b=$("#calbadge"); b.textContent="cal: "+(n?(n+" axes"):"none");
+  b.className="badge "+(n?"c3":"");
+  $("#clearcal").disabled=!n; $("#copycal").disabled=!n;
+}
+function startCal(){
+  if(!S.connected){ log("Connect first."); return; }
+  if(S.source!=="C3"){ showBanner("Calibration needs the <b>C3</b> port (usbmodem…), not the RX."); return; }
+  AXES.forEach(a=>{S.min[a]=99999;S.max[a]=-1;});
+  S.calActive=true;
+  const dur=10; S.calEnd=Date.now()+dur*1000;
+  showBanner(`Calibrating radio — move <b>ALL</b> sticks in full circles to every extreme, then release to centre. <b id="calleft">${dur}</b>s left.`);
+  clearInterval(calTimer);
+  calTimer=setInterval(()=>{
+    const left=Math.ceil((S.calEnd-Date.now())/1000);
+    const el=document.getElementById("calleft"); if(el) el.textContent=Math.max(0,left);
+    if(left<=0){ clearInterval(calTimer); finishCal(); }
+  },200);
+}
+function finishCal(){
+  S.calActive=false;
+  const axes={}, bad=[];
+  AXES.forEach(a=>{
+    const mn=S.min[a], mx=S.max[a], span=(mx-mn);
+    if(mn===99999||span<150){ bad.push(a); log("cal "+a+": NO SIGNAL (span="+(span<0?0:span)+"mV)"); return; }
+    const center=Math.round((mn+mx)/2);
+    const dz=Math.max(15,Math.min(80,Math.round(span*0.03)));
+    axes[a]={min:mn,max:mx,center,dz};
+    log("cal "+a+": min="+mn+" max="+mx+" center="+center+" dz=±"+dz+"mV");
+  });
+  if(Object.keys(axes).length){
+    S.cal={axes, at:new Date().toISOString()};
+    try{ localStorage.setItem("c3joy_cal",JSON.stringify(S.cal)); }catch(e){}
+    log("Calibration saved.");
+  }
+  calBadge(); render();
+  if(bad.length) showBanner("⚠ Calibration incomplete — no signal on: <b>"+bad.join(", ")+"</b>. Those axes didn't move enough. Check that the joystick is powered and the wiper wires are seated.");
+  else hideBanner();
+}
+function clearCal(){ S.cal=null; try{localStorage.removeItem("c3joy_cal");}catch(e){} calBadge(); render(); log("Calibration cleared."); }
+
+$("#connect").onclick=connect;
+$("#disconnect").onclick=disconnect;
+$("#calibrate").onclick=startCal;
+$("#copycal").onclick=()=>{ if(!S.cal) return; const t=JSON.stringify(S.cal,null,1); (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>log("Calibration JSON copied to clipboard."),()=>log(t)); };
+$("#clearcal").onclick=clearCal;
+$("#reset").onclick=()=>{ AXES.forEach(a=>{S.min[a]=99999;S.max[a]=-1;}); log("range reset"); };
+for(let c=0;c<6;c++) $("#msel_"+c).onchange=(e)=>applyMap(c,e.target.value);
+calBadge();
+render();
+</script>
+</body>
+</html>
