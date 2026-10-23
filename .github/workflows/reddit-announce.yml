@@ -1,0 +1,51 @@
+name: Announce on Reddit
+
+# Manually triggered on purpose: you pick the subreddit and title each time.
+# Never wire this to `on: release` until you're sure the subreddit allows it.
+#
+# Before you run this:
+#   1. Read the target subreddit's self-promotion rules. Most require that you
+#      are an active member and that most of your posts are NOT your own links.
+#   2. Use an account with real age/karma. Brand-new accounts get rate-limited
+#      to ~10 minutes per post (see the action's README).
+#   3. Post to ONE community per run. Do not loop over a list of subreddits.
+#
+# Required repository secrets (Settings -> Secrets and variables -> Actions):
+#   REDDIT_USERNAME, REDDIT_PASSWORD, REDDIT_APP_ID, REDDIT_APP_SECRET
+# Create the app at https://www.reddit.com/prefs/apps (type: script).
+
+on:
+  workflow_dispatch:
+    inputs:
+      subreddit:
+        description: "Target subreddit (no r/ prefix). Check its rules first."
+        required: true
+      title:
+        description: "Post title"
+        required: true
+      url:
+        description: "Link to submit"
+        required: true
+        default: "https://github.com/adithya-in/esp-rc-link"
+      comment:
+        description: "Optional first comment (context / changelog). Leave blank for none."
+        required: false
+        default: ""
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit Reddit post
+        uses: bluwy/release-for-reddit-action@v1
+        with:
+          username: ${{ secrets.REDDIT_USERNAME }}
+          password: ${{ secrets.REDDIT_PASSWORD }}
+          app-id: ${{ secrets.REDDIT_APP_ID }}
+          app-secret: ${{ secrets.REDDIT_APP_SECRET }}
+          subreddit: ${{ github.event.inputs.subreddit }}
+          title: ${{ github.event.inputs.title }}
+          url: ${{ github.event.inputs.url }}
+          comment: ${{ github.event.inputs.comment }}
+          notification: "true"
+          retry-rate-limit: "1"
