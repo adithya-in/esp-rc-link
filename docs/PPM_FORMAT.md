@@ -45,6 +45,8 @@ LOW(sync) HIGH(400) LOW(ch1-400) HIGH(400) LOW(ch2-400) ... HIGH(400)
    └──── period = ch1 ──────────────┘
 ```
 
+![PPM waveform](images/ppm_waveform.svg)
+
 ## What this project emits
 
 The ESP8266 uses timer1 to walk a 14-segment table (`2*N + 2`):

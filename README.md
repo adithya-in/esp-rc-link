@@ -9,13 +9,7 @@ transmitter/receiver pair:
   PPM (CPPM) sum signal** that an old flight controller (APM 2.8 / ArduPilot)
   can decode.
 
-```
-   ┌───────────────┐        ESP-NOW (2.4 GHz)        ┌────────────────┐   PPM    ┌───────────┐
-   │  ESP32-C3 TX  │  ───────────────────────────▶   │  ESP8266 RX    │ ───────▶ │  APM 2.8  │
-   │ 2 sticks + 2  │  RcPacket {magic,ch[6],crc}     │  D2/GPIO4 out  │  1 wire  │  FC       │
-   │ switches      │                                 │  D7 LED status │          └───────────┘
-   └───────────────┘                                 └────────────────┘
-```
+![System architecture](docs/images/architecture.svg)
 
 ## Why this is interesting
 
@@ -27,6 +21,8 @@ emits each channel as `400 µs gap + (value − 400) µs pulse`, so that
 Getting this exactly right (polarity + structure) is what makes the APM decode
 the stream instead of showing all‑zero channels. See
 [`docs/PPM_FORMAT.md`](docs/PPM_FORMAT.md).
+
+![PPM waveform](docs/images/ppm_waveform.svg)
 
 ## Hardware
 
@@ -52,14 +48,13 @@ See [`docs/RECEIVER_PINOUT.md`](docs/RECEIVER_PINOUT.md). PPM signal → `D2 (GP
 
 ### Wiring to the flight controller (APM 2.x)
 
-```
-D1 mini D2 (GPIO4) ── FC PPM input "Input 1" signal pin
-          GND      ── FC GND (common ground)
-   5V / VIN        ── BEC 5V (optional)
-```
+![Wiring diagram](docs/images/wiring.svg)
 
-Also place a **jumper across the signal pins of RC Inputs 2 and 3** — the APM2
-requires this to accept an external PPM sum on Input 1.
+- `D2 (GPIO4)` → FC **Input 1** signal pin (PPM).
+- `GND` → FC **GND** (common ground — required).
+- `5V/VIN` → BEC 5 V (optional).
+- Place a **jumper across the signal pins of RC Inputs 2 and 3** — the APM2
+  requires this to accept an external PPM sum on Input 1.
 
 > **Level tip:** the ESP outputs 3.3 V logic; the APM2 AVR input expects ~5 V.
 > It usually works at 3.3 V, but if the FC still shows zero channels after the

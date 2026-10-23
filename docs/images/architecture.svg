@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="300" viewBox="0 0 920 300" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <rect width="920" height="300" fill="#ffffff"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <text x="460" y="40" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">esp-rc-link — system architecture</text>
+
+  <rect x="20" y="80" width="220" height="150" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="130" y="112" text-anchor="middle" font-size="19" font-weight="700" fill="#1e3a8a">ESP32-C3 TX</text>
+  <text x="130" y="140" text-anchor="middle" font-size="14" fill="#334155">2 analog joysticks</text>
+  <text x="130" y="162" text-anchor="middle" font-size="14" fill="#334155">2 toggle switches</text>
+  <text x="130" y="192" text-anchor="middle" font-size="13" fill="#64748b">6 channels @ 50 Hz</text>
+
+  <line x1="245" y1="155" x2="345" y2="155" stroke="#475569" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="295" y="120" text-anchor="middle" font-size="13" font-weight="600" fill="#0f172a">ESP-NOW</text>
+  <text x="295" y="138" text-anchor="middle" font-size="12" fill="#64748b">2.4 GHz</text>
+  <text x="295" y="184" text-anchor="middle" font-size="11" fill="#64748b">{magic, ch[6], crc}</text>
+
+  <rect x="350" y="80" width="220" height="150" rx="14" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <text x="460" y="112" text-anchor="middle" font-size="19" font-weight="700" fill="#166534">ESP8266 RX</text>
+  <text x="460" y="140" text-anchor="middle" font-size="14" fill="#334155">D1 mini</text>
+  <text x="460" y="162" text-anchor="middle" font-size="14" fill="#334155">D2 / GPIO4 = PPM out</text>
+  <text x="460" y="192" text-anchor="middle" font-size="13" fill="#64748b">D7 = link LED</text>
+
+  <line x1="575" y1="155" x2="675" y2="155" stroke="#475569" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="625" y="140" text-anchor="middle" font-size="13" font-weight="600" fill="#0f172a">PPM</text>
+  <text x="625" y="158" text-anchor="middle" font-size="12" fill="#64748b">single wire</text>
+
+  <rect x="680" y="80" width="220" height="150" rx="14" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+  <text x="790" y="112" text-anchor="middle" font-size="19" font-weight="700" fill="#92400e">APM 2.8</text>
+  <text x="790" y="140" text-anchor="middle" font-size="14" fill="#334155">PPM sum on Input 1</text>
+  <text x="790" y="162" text-anchor="middle" font-size="14" fill="#334155">jumper Inputs 2 &amp; 3</text>
+  <text x="790" y="192" text-anchor="middle" font-size="13" fill="#64748b">ArduPilot 3.2.1</text>
+</svg>

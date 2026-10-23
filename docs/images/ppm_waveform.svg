@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="340" viewBox="0 0 960 340" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <rect width="960" height="340" fill="#ffffff"/>
+  <defs>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <text x="480" y="36" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">ArduPPM / APM2 framing</text>
+  <text x="480" y="60" text-anchor="middle" font-size="13" fill="#64748b">rising edge → rising edge = channel value (1000–2000 µs); frame ends with a &gt;4000 µs sync</text>
+
+  <!-- waveform: high y=100, low y=200 -->
+  <polyline points="70,200 190,200 190,100 240,100 240,200 377,200 377,100 427,100 427,200 565,200 565,100 615,100 615,200 752,200 752,100 802,100 802,200 900,200"
+            fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linejoin="round"/>
+
+  <!-- time axis -->
+  <line x1="60" y1="228" x2="910" y2="228" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#r)"/>
+  <text x="900" y="250" text-anchor="end" font-size="12" fill="#64748b">t</text>
+
+  <!-- sync label -->
+  <text x="130" y="222" text-anchor="middle" font-size="12" fill="#b91c1c">sync &gt; 4000 µs</text>
+
+  <!-- fixed pulse labels -->
+  <text x="215" y="90" text-anchor="middle" font-size="11" fill="#2563eb">400</text>
+  <text x="402" y="90" text-anchor="middle" font-size="11" fill="#2563eb">400</text>
+  <text x="590" y="90" text-anchor="middle" font-size="11" fill="#2563eb">400</text>
+  <text x="777" y="90" text-anchor="middle" font-size="11" fill="#2563eb">400</text>
+  <text x="252" y="88" text-anchor="middle" font-size="10" fill="#64748b">µs</text>
+
+  <!-- variable low labels -->
+  <text x="308" y="222" text-anchor="middle" font-size="12" fill="#334155">CH1 − 400 µs</text>
+  <text x="496" y="222" text-anchor="middle" font-size="12" fill="#334155">CH2 − 400 µs</text>
+  <text x="683" y="222" text-anchor="middle" font-size="12" fill="#334155">CH3 − 400 µs</text>
+
+  <!-- rising edge markers -->
+  <line x1="190" y1="100" x2="190" y2="88" stroke="#2563eb" stroke-width="2"/>
+  <line x1="377" y1="100" x2="377" y2="88" stroke="#2563eb" stroke-width="2"/>
+
+  <!-- period bracket -->
+  <line x1="190" y1="285" x2="377" y2="285" stroke="#16a34a" stroke-width="2"/>
+  <line x1="190" y1="278" x2="190" y2="292" stroke="#16a34a" stroke-width="2"/>
+  <line x1="377" y1="278" x2="377" y2="292" stroke="#16a34a" stroke-width="2"/>
+  <text x="283" y="308" text-anchor="middle" font-size="13" font-weight="600" fill="#166534">period = CH1 (rising → rising)</text>
+</svg>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="380" viewBox="0 0 920 380" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <rect width="920" height="380" fill="#ffffff"/>
+
+  <text x="460" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">Wiring: ESP8266 D1 mini → APM 2.8</text>
+
+  <!-- D1 mini -->
+  <rect x="40" y="70" width="260" height="280" rx="14" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <text x="170" y="102" text-anchor="middle" font-size="18" font-weight="700" fill="#166534">ESP8266 D1 mini</text>
+  <text x="300" y="150" text-anchor="end" font-size="13" fill="#334155">D2 / GPIO4</text>
+  <text x="300" y="210" text-anchor="end" font-size="13" fill="#334155">GND</text>
+  <text x="300" y="270" text-anchor="end" font-size="13" fill="#334155">5V / VIN</text>
+  <circle cx="312" cy="145" r="4" fill="#16a34a"/>
+  <circle cx="312" cy="205" r="4" fill="#16a34a"/>
+  <circle cx="312" cy="265" r="4" fill="#16a34a"/>
+
+  <!-- APM -->
+  <rect x="600" y="70" width="280" height="280" rx="14" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+  <text x="740" y="102" text-anchor="middle" font-size="18" font-weight="700" fill="#92400e">APM 2.8</text>
+  <text x="600" y="140" text-anchor="start" font-size="13" fill="#334155">Input 1 (signal)</text>
+  <text x="600" y="190" text-anchor="start" font-size="13" fill="#334155">Input 2 (signal)</text>
+  <text x="600" y="225" text-anchor="start" font-size="13" fill="#334155">Input 3 (signal)</text>
+  <text x="600" y="285" text-anchor="start" font-size="13" fill="#334155">GND</text>
+  <circle cx="588" cy="135" r="4" fill="#d97706"/>
+  <circle cx="588" cy="185" r="4" fill="#d97706"/>
+  <circle cx="588" cy="220" r="4" fill="#d97706"/>
+  <circle cx="588" cy="280" r="4" fill="#d97706"/>
+
+  <!-- PPM line -->
+  <polyline points="312,145 470,145 470,135 588,135" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="400" y="132" text-anchor="middle" font-size="12" font-weight="600" fill="#1e3a8a">PPM (signal)</text>
+
+  <!-- GND line -->
+  <polyline points="312,205 360,205 360,280 588,280" fill="none" stroke="#475569" stroke-width="2.5"/>
+  <text x="430" y="300" text-anchor="middle" font-size="12" fill="#475569">common GND</text>
+
+  <!-- 5V optional -->
+  <polyline points="312,265 360,265 360,340 470,340" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="430" y="360" text-anchor="middle" font-size="12" fill="#166534">5V / BEC (optional)</text>
+
+  <!-- jumper 2-3 -->
+  <path d="M 558 185 C 520 185 520 220 558 220" fill="none" stroke="#b91c1c" stroke-width="2.5"/>
+  <text x="512" y="210" text-anchor="end" font-size="12" font-weight="600" fill="#b91c1c">jumper</text>
+  <text x="512" y="226" text-anchor="end" font-size="12" font-weight="600" fill="#b91c1c">2 ↔ 3</text>
+
+  <text x="460" y="146" text-anchor="middle" font-size="11" fill="#64748b">3.3 V logic — add a 5 V buffer if the FC reads 0</text>
+</svg>
