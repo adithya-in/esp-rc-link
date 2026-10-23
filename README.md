@@ -1,5 +1,11 @@
 # esp-rc-link
 
+**A DIY RC transmitter/receiver built from cheap ESP dev boards** — ESP32‑C3 TX →
+ESP‑NOW → ESP8266 RX → single‑wire PPM that an old APM 2.8 / ArduPilot flight
+controller can decode.
+
+![C3 Joystick Configurator](docs/images/configurator.png)
+
 A DIY RC link built from cheap ESP dev boards, replacing a normal RC
 transmitter/receiver pair:
 
