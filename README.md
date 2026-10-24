@@ -74,7 +74,8 @@ firmware/
 ├── esp8266_rx_ppm/         ESP8266 receiver (ESP-NOW -> PPM)
 ├── esp8266_ppm_loopback/   self-test: generate PPM on D2, read back on D5
 ├── c3_axis_probe/          TX diagnostic: raw ADC + mV per axis
-└── ppm_reader_esp32/       ESP32 PPM decoder (standalone verifier)
+├── ppm_reader_esp32/       ESP32 PPM decoder (standalone verifier)
+└── esp32cam_livefeed/      AI-Thinker ESP32-CAM MJPEG live feed (optional)
 ```
 
 ### Toolchain
@@ -115,6 +116,23 @@ frame=30 period=20042us ch=6 : 1006 1206 1406 1606 1806 2006
 ```
 
 That is exactly what the APM2 reads as channel values (1000…2000 + a few µs).
+
+## FPV camera (optional)
+
+An **AI-Thinker ESP32-CAM** module was tested alongside the RC link as a
+standalone live feed. It boots into AP mode (`ESP32-CAM` / `12345678`) and
+serves MJPEG at `http://192.168.4.1/stream`.
+
+```sh
+arduino-cli compile \
+  --fqbn "esp32:esp32:esp32:PSRAM=enabled,PartitionScheme=custom,FlashMode=dio" \
+  firmware/esp32cam_livefeed
+```
+
+Note that the camera's Wi-Fi and the ESP-NOW link share the 2.4 GHz band, so
+running both reduces range and adds latency. See
+[`docs/FPV_CAMERA.md`](docs/FPV_CAMERA.md) for wiring, endpoints, flashing and
+caveats.
 
 ## Configurator (Web Serial)
 
